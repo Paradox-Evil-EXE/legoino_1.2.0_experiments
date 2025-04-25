@@ -543,3 +543,9 @@ well, it needs 1 GPIO device, which is a button connected to GND and pin 26 (D26
 image:
 ![image](https://github.com/user-attachments/assets/fe139aff-25cf-4e10-b9f0-33fb2a114181)
 
+# for version 1.2.3
+the above method to restart is scrapped, you can still use it, but it can be reliable, instead, I added:
+```c++
+EmulatedHub.Advertise(); //starts advertising the hub, aka lets you connect to it again
+EmulatedHub.stopAdvertising(); //stops advertising the hub, make it unable to connect to, usefull for power saving moe
+```
