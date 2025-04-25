@@ -465,6 +465,56 @@ void Lpf2HubEmulation::start()
   log_d("Characteristic defined! Now you can connect with your PoweredUp App!");
 }
 
+void Lpf2HubEmulation::Advertise()
+{
+  _pAdvertising = NimBLEDevice::getAdvertising();
+
+  _pAdvertising->addServiceUUID(LPF2_UUID);
+  _pAdvertising->enableScanResponse(true);
+  _pAdvertising->setMinInterval(32); // 20ms
+  _pAdvertising->setMaxInterval(64); // 40ms
+
+  std::string manufacturerData;
+  if (_hubType == HubType::POWERED_UP_HUB)
+  {
+    const char poweredUpHub[8] = {0x97, 0x03, 0x00, 0x41, 0x07, 0x00, 0x63, 0x00};
+    manufacturerData = std::string(poweredUpHub, sizeof(poweredUpHub));
+  }
+  else if (_hubType == HubType::CONTROL_PLUS_HUB)
+  {
+    const char controlPlusHub[8] = {0x97, 0x03, 0x00, 0x80, 0x06, 0x00, 0x41, 0x00};
+    manufacturerData = std::string(controlPlusHub, sizeof(controlPlusHub));
+  }
+
+  NimBLEAdvertisementData advertisementData;
+  advertisementData.setFlags(BLE_HS_ADV_F_DISC_GEN);
+  advertisementData.setManufacturerData(manufacturerData);
+  advertisementData.setCompleteServices(NimBLEUUID(LPF2_UUID));
+
+  NimBLEAdvertisementData scanResponseData;
+  scanResponseData.setName(_hubName);
+  scanResponseData.setFlags(BLE_HS_ADV_F_DISC_GEN);
+
+  const uint8_t powerLevel[3] = {0x02, 0x0A, 0x00}; // 0dB
+  scanResponseData.addData(powerLevel, sizeof(powerLevel));
+
+  const uint8_t slaveConnectionIntervalRange[6] = {0x05, 0x12, 0x10, 0x00, 0x20, 0x00}; // 20-40ms
+  scanResponseData.addData(slaveConnectionIntervalRange, sizeof(slaveConnectionIntervalRange));
+
+  _pAdvertising->setAdvertisementData(advertisementData);
+  _pAdvertising->setScanResponseData(scanResponseData);
+
+  NimBLEDevice::startAdvertising();
+}
+
+void Lpf2HubEmulation::stopAdvertising()
+{
+  if (_pAdvertising && _pAdvertising->isAdvertising())
+  {
+    _pAdvertising->stop();
+  }
+}
+
 std::string Lpf2HubEmulation::getPortInformationPayload(DeviceType deviceType, byte port, byte informationType)
 {
 
