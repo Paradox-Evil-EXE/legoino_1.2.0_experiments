@@ -547,5 +547,5 @@ image:
 the above method to restart is scrapped, you can still use it, but it can be reliable, instead, I added:
 ```c++
 EmulatedHub.Advertise(); //starts advertising the hub, aka lets you connect to it again
-EmulatedHub.stopAdvertising(); //stops advertising the hub, make it unable to connect to, usefull for power saving moe
+EmulatedHub.stopAdvertising(); //stops advertising the hub, make it unable to connect to, usefull for power saving mode
 ```
